@@ -58,6 +58,38 @@ class WorkspaceMemberRepository {
         return await this.getByUserAndWorkspaceId(user_id, workspace_id);
     }
 
+    // Listar invitaciones pendientes de un usuario (para que las vea y las acepte/rechace)
+    async getPendingByUserId(user_id) {
+        const memberships = await WorkspaceMember
+            .find({
+                fk_user_id: user_id,
+                estatus_invitacion: MEMBER_INVITATION_STATUS.PENDING
+            })
+            .populate(
+                {
+                    path: 'fk_workspace_id',
+                    select: 'nombre descripcion estado',
+                    match: { estado: true }
+                }
+            );
+
+        return memberships
+            .filter(
+                membership => membership.fk_workspace_id
+            )
+            .map((membership) => ({
+                /* Member */
+                member_id: membership._id,
+                member_rol: membership.rol,
+                member_estatus_invitacion: membership.estatus_invitacion,
+                member_fecha_creacion: membership.fecha_creacion,
+                /* Workspace */
+                workspace_id: membership.fk_workspace_id._id,
+                workspace_nombre: membership.fk_workspace_id.nombre,
+                workspace_descripcion: membership.fk_workspace_id.descripcion
+            }));
+    }
+
     // Listar membresías aceptadas de un usuario (para el listado de grupos)
     async getByUserId(user_id) {
         const memberships = await WorkspaceMember

@@ -35,6 +35,23 @@ class MemberWorkspaceController {
         });
     }
 
+    // GET /members/me/invitations
+    // Devuelve las invitaciones pendientes del usuario logueado, para que
+    // pueda verlas en el home y aceptarlas o rechazarlas desde la app.
+    async getMyPendingInvitations(request, response) {
+        const { id: user_id } = request.user;
+
+        const invitations = await workspaceMemberRepository.getPendingByUserId(user_id);
+
+        return response.status(200).json({
+            ok: true,
+            message: "Invitaciones pendientes obtenidas",
+            data: {
+                invitations
+            }
+        });
+    }
+
     // PUT /:workspace_id/members/me/decision
     // El invitado acepta o rechaza la invitación desde la app (requiere sesión)
     async processInvitation(request, response) {

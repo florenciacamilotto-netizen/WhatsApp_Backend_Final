@@ -17,6 +17,10 @@ workspaceRouter.post('/', workspaceController.create);
 // OBTENER LOS ESPACIOS DE TRABAJO DE UN USUARIO //
 workspaceRouter.get('/', workspaceController.getAllByUser);
 
+// Invitaciones pendientes del usuario logueado (para mostrarlas en el home)
+// IMPORTANTE: va antes de cualquier ruta '/:workspace_id' para no chocar con ella
+workspaceRouter.get('/members/me/invitations', memberWorkspaceController.getMyPendingInvitations);
+
 // ELIMINAR EL ESPACIO DE TRABAJO SI EL CLIENTE ES DUEÑO //
 workspaceRouter.delete(
     '/:workspace_id',
