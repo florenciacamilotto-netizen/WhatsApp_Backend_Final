@@ -43,17 +43,25 @@ class AuthController {
                 ENVIRONMENT.JWT_SECRET
             )
 
-            await mailer_transport.sendMail(
-                {
-                    to: email,
-                    from: ENVIRONMENT.GMAIL_USERNAME,
-                    subject: "Verifica tu mail",
-                    html: `
-                    <h1> Bienvenido a WhatsApp </h1>
-                    <a href='${ENVIRONMENT.URL_BACKEND}/api/auth/verify-email?verification_token=${verification_token}'>Click aquí</a> para verificar tu cuenta
-                    `
-                }
-            )
+            const verificationUrl = `${ENVIRONMENT.URL_BACKEND}/api/auth/verify-email?verification_token=${verification_token}`;
+            try {
+                await mailer_transport.sendMail(
+                    {
+                        to: email,
+                        from: ENVIRONMENT.GMAIL_USERNAME,
+                        subject: "Verifica tu mail",
+                        html: `
+                        <h1> Bienvenido a WhatsApp </h1>
+                        <a href='${verificationUrl}'>Click aquí</a> para verificar tu cuenta
+                        `
+                    }
+                )
+                console.log(`Email de verificación enviado a ${email}.`);
+            } catch (mailError) {
+                console.error("Error al enviar el email de verificación:", mailError.message);
+            }
+            // Siempre imprimir el enlace de verificación en la consola local por si falla el envío de correo.
+            console.log("Enlace de verificación del usuario:", verificationUrl);
 
             return response.status(201).json({
                 message: "Usuario registrado con éxito",
@@ -116,39 +124,61 @@ class AuthController {
             // ACTUALIZAR VERIFICACIÓN DE USUARIO A VERDADERO //
             await userRepository.updateById(user._id, { email_verificado: true });
 
-            return response.status(200).json({
-                ok: true,
-                status: 200,
-                message: "Email verificado correctamente. ¡Ya puedes usar tu cuenta!"
-            });
+            return response.status(200).send(`
+                <html>
+                    <head>
+                        <title>Cuenta Verificada</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f7f9fa; }
+                            .card { background: white; padding: 30px; border-radius: 8px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+                            h1 { color: #07bc0c; }
+                            a { display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #07bc0c; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="card">
+                            <h1>¡Cuenta verificada con éxito!</h1>
+                            <p>Tu email ha sido verificado correctamente. Ya puedes usar tu cuenta.</p>
+                            <a href="${ENVIRONMENT.URL_FRONTEND}/login">Ir a Iniciar Sesión</a>
+                        </div>
+                    </body>
+                </html>
+            `);
         }
         catch (error) {
+            let errorMessage = "Error interno del servidor";
+            let statusCode = 500;
+
             if (error instanceof jwt.JsonWebTokenError) {
-                return response.status(401).json(
-                    {
-                        message: "Token inválido",
-                        ok: false,
-                        status: 401
-                    }
-                )
-            }
-            else if (error instanceof ServerError) {
-                return response.status(error.status).json(
-                    {
-                        message: error.message,
-                        ok: false,
-                        status: error.status
-                    }
-                )
-            }
-            else {
+                errorMessage = "El token de verificación es inválido o ha expirado.";
+                statusCode = 401;
+            } else if (error instanceof ServerError) {
+                errorMessage = error.message;
+                statusCode = error.status;
+            } else {
                 console.error('Error crítico:', error);
-                return response.status(500).json({
-                    message: "Error interno del servidor",
-                    ok: false,
-                    status: 500
-                });
             }
+
+            return response.status(statusCode).send(`
+                <html>
+                    <head>
+                        <title>Error de Verificación</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f7f9fa; }
+                            .card { background: white; padding: 30px; border-radius: 8px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+                            h1 { color: #e74c3c; }
+                            a { display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #3498db; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="card">
+                            <h1>Error al verificar</h1>
+                            <p>${errorMessage}</p>
+                            <a href="${ENVIRONMENT.URL_FRONTEND}/login">Volver al Inicio</a>
+                        </div>
+                    </body>
+                </html>
+            `);
         }
     }
 

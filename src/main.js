@@ -102,7 +102,7 @@ app.use(express.json(
 ))
 
 // HABILITAR CONSULTAS CROSS-ORIGIN //
-app.use(cors())
+app.use(cors('https://whats-app-frontend-final.vercel.app/register'))
 
 app.use('/api/auth', authRouter);
 app.use('/api/workspace', workspaceRouter)
