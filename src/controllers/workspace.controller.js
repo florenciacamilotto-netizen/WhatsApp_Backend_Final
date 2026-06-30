@@ -10,31 +10,56 @@ class WorkspaceController {
     // POST /
     // Cualquier usuario autenticado puede crear un grupo
     async create(request, response) {
-        const { nombre, descripcion } = request.body;
-        const user_id = request.user.id;
+        try {
+            const { nombre, descripcion } = request.body;
+            const user_id = request.user.id;
 
-        if (!nombre || nombre.trim() === '') {
-            throw new ServerError("El nombre del espacio de trabajo es obligatorio", 400);
-        }
-
-        const newWorkspace = await workspaceRepository.create(nombre, descripcion || '');
-
-        // El creador queda como Dueño con invitación aceptada automáticamente
-        await workspaceMemberRepository.create(
-            user_id,
-            newWorkspace._id,
-            MEMBER_WORKSPACE_ROLES.OWNER,
-            MEMBER_INVITATION_STATUS.ACCEPTED,
-            null
-        );
-
-        return response.status(201).json({
-            ok: true,
-            message: "Espacio de trabajo creado con éxito",
-            data: {
-                workspace: newWorkspace
+            if (!nombre || nombre.trim() === '') {
+                throw new ServerError("El nombre del espacio de trabajo es obligatorio", 400);
             }
-        });
+
+            // 1. Crear el espacio de trabajo
+            const newWorkspace = await workspaceRepository.create(nombre, descripcion || '');
+
+            // Validar que el objeto creado devuelva el ID correcto de Mongoose
+            const workspaceId = newWorkspace._id || newWorkspace.id;
+            if (!workspaceId) {
+                throw new ServerError("Error al generar el ID del espacio de trabajo", 500);
+            }
+
+            // 2. El creador queda como Dueño con invitación aceptada automáticamente
+            await workspaceMemberRepository.create(
+                user_id,
+                workspaceId,
+                MEMBER_WORKSPACE_ROLES.OWNER,
+                MEMBER_INVITATION_STATUS.ACCEPTED,
+                null
+            );
+
+            return response.status(201).json({
+                ok: true,
+                message: "Espacio de trabajo creado con éxito",
+                data: {
+                    workspace: newWorkspace
+                }
+            });
+
+        } catch (error) {
+            if (error instanceof ServerError) {
+                return response.status(error.status).json({
+                    message: error.message,
+                    ok: false,
+                    status: error.status
+                });
+            } else {
+                console.error("Error crítico al crear workspace:", error);
+                return response.status(500).json({
+                    message: "Error interno del servidor al crear el espacio de trabajo",
+                    ok: false,
+                    status: 500
+                });
+            }
+        }
     }
 
     // GET /
