@@ -38,6 +38,21 @@ workspaceRouter.post(
     memberWorkspaceController.inviteUser
 );
 
+// Invitaciones pendientes del usuario logueado (para mostrarlas en el home)
+// IMPORTANTE: ruta literal, va antes que '/:workspace_id/members' para que
+// Express no intente interpretar "members" como workspace_id.
+workspaceRouter.get(
+    '/members/me/invitations',
+    memberWorkspaceController.getMyPendingInvitations
+);
+
+// Listar miembros aceptados de un grupo (cualquier miembro aceptado puede verla)
+workspaceRouter.get(
+    '/:workspace_id/members',
+    workspaceMiddleware([]),
+    memberWorkspaceController.getMembers
+);
+
 // Admin se degrada a sí mismo a Usuario
 // IMPORTANTE: esta ruta literal va ANTES que '/members/me/:decision',
 // porque ':decision' matchea cualquier valor (incluido "downgrade") y,
