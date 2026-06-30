@@ -42,6 +42,13 @@ workspaceRouter.post(
     memberWorkspaceController.inviteUser
 );
 
+// Listar los miembros que aceptaron formar parte del grupo (cualquier miembro aceptado puede verla)
+workspaceRouter.get(
+    '/:workspace_id/members',
+    workspaceMiddleware([]),
+    memberWorkspaceController.getMembers
+);
+
 // Admin se degrada a sí mismo a Usuario
 // IMPORTANTE: esta ruta literal va ANTES que '/members/me/:decision',
 // porque ':decision' matchea cualquier valor (incluido "downgrade") y,

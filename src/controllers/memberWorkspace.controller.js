@@ -35,6 +35,22 @@ class MemberWorkspaceController {
         });
     }
 
+    // GET /:workspace_id/members
+    // Lista los miembros que aceptaron formar parte del grupo (requiere ser miembro aceptado)
+    async getMembers(request, response) {
+        const { workspace_id } = request.params;
+
+        const members = await workspaceMemberRepository.getByWorkspaceId(workspace_id);
+
+        return response.status(200).json({
+            ok: true,
+            message: "Miembros obtenidos",
+            data: {
+                members
+            }
+        });
+    }
+
     // GET /members/me/invitations
     // Devuelve las invitaciones pendientes del usuario logueado, para que
     // pueda verlas en el home y aceptarlas o rechazarlas desde la app.
