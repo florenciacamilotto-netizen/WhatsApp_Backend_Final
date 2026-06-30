@@ -2,6 +2,8 @@ import MEMBER_INVITATION_STATUS from "../constants/memberInvitationStatus.consta
 import ServerError from "../helpers/serverError.helper.js";
 import userRepository from "../repositories/user.repository.js";
 import workspaceMemberRepository from "../repositories/workspaceMember.repository.js";
+import mailService from "./mail.service.js";
+import ENVIRONMENT from "../config/environment.config.js";
 
 /* 
 Es la capa de nuestra API encargada de la logica de negocio
@@ -29,7 +31,7 @@ class MemberWorkspaceService {
         // Verifica si el usuario ya es miembro o tiene una invitacion pendiente
         await this.verifyAlreadyMember(workspace_id, userToInvite._id);
 
-        // Crea la membresia en estado Pendiente (sin expiracion ni email)
+        // Crea la membresia en estado Pendiente
         await workspaceMemberRepository.create(
             userToInvite._id,
             workspace_id,
@@ -37,6 +39,23 @@ class MemberWorkspaceService {
             MEMBER_INVITATION_STATUS.PENDING,
             null
         );
+
+        // Envía el mail de invitación. Si falla el envío, no rompemos la
+        // invitación ya creada (igual que en el registro de usuario);
+        // el invitado siempre puede ver/aceptar la invitación desde la app.
+        const accept_url = `${ENVIRONMENT.URL_FRONTEND}/workspaces/${workspace_id}/invitations?decision=${encodeURIComponent(MEMBER_INVITATION_STATUS.ACCEPTED)}`;
+        const reject_url = `${ENVIRONMENT.URL_FRONTEND}/workspaces/${workspace_id}/invitations?decision=${encodeURIComponent(MEMBER_INVITATION_STATUS.REJECTED)}`;
+
+        try {
+            await mailService.sendInvitationMemberEmail(
+                user_invited_email,
+                accept_url,
+                reject_url,
+                role
+            );
+        } catch (mailError) {
+            console.error("Error al enviar el email de invitación:", mailError.message);
+        }
     }
 
     /**
