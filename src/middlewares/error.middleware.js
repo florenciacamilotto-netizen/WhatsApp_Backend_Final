@@ -1,5 +1,5 @@
-import jwt from 'jsonwebtoken'
-import ServerError from '../helpers/serverError.helper.js';
+import jwt from "jsonwebtoken"
+import ServerError from "../helpers/serverError.helper.js";
 
 
 function errorHandlerMiddleware(error, request, response, next) {
@@ -12,7 +12,7 @@ function errorHandlerMiddleware(error, request, response, next) {
     ) {
         return response.status(401).json(
             {
-                message: "Token invalido",
+                message: "Token inválido",
                 ok: false,
                 status: 401
             }
@@ -28,7 +28,7 @@ function errorHandlerMiddleware(error, request, response, next) {
         )
     }
     else {
-        console.error('Error critico:', error);
+        console.error("Error critico:", error);
         return response.status(500).json({
             message: "Error interno del servidor",
             ok: false,

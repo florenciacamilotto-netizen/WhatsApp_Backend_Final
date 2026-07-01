@@ -14,13 +14,13 @@ function workspaceMiddleware(valid_roles = []) {
 
             // CORROBORAR SI EXISTE EL ESPACIO DE TRABAJO //
             if (!workspace_id) {
-                throw new ServerError("No se proporciono el id del espacio de trabajo", 400);
+                throw new ServerError("No se proporcionó el ID del espacio de trabajo", 400);
             }
 
             // BUSCAR ESPACIO DE TRABAJO POR ID //
             const workspace = await workspaceRepository.getById(workspace_id);
             if (!workspace) {
-                throw new ServerError("No se encontro el espacio de trabajo", 404);
+                throw new ServerError("No se encontró el espacio de trabajo", 404);
             }
 
             const member_selected = await workspaceMemberRepository.getByUserAndWorkspaceId(user_id, workspace_id);
@@ -30,7 +30,6 @@ function workspaceMiddleware(valid_roles = []) {
             }
             /* console.log({valid_roles, member_selected}) */
 
-            // El usuario debe haber aceptado la invitación para operar dentro del grupo
             if (member_selected.estatus_invitacion !== MEMBER_INVITATION_STATUS.ACCEPTED) {
                 throw new ServerError("Debés aceptar la invitación antes de realizar esta acción", 403);
             }
@@ -52,7 +51,7 @@ function workspaceMiddleware(valid_roles = []) {
                     status: error.status
                 });
             } else {
-                console.error('Error critico:', error);
+                console.error("Error critico:", error);
                 return response.status(500).json({
                     message: "Error interno del servidor",
                     ok: false,

@@ -7,8 +7,8 @@ import workspaceMemberRepository from "../repositories/workspaceMember.repositor
 
 class WorkspaceController {
 
-    // POST /
-    // Cualquier usuario autenticado puede crear un grupo
+    // (POST) CREAR GRUPO //
+
     async create(request, response) {
         try {
             const { nombre, descripcion } = request.body;
@@ -18,7 +18,7 @@ class WorkspaceController {
                 throw new ServerError("El nombre del espacio de trabajo es obligatorio", 400);
             }
 
-            // 1. Crear el espacio de trabajo
+            // CREAR UN ESPACIO DE TRABAJO //
             const newWorkspace = await workspaceRepository.create(nombre, descripcion || '');
 
             // Validar que el objeto creado devuelva el ID correcto de Mongoose
@@ -27,7 +27,7 @@ class WorkspaceController {
                 throw new ServerError("Error al generar el ID del espacio de trabajo", 500);
             }
 
-            // 2. El creador queda como Dueño con invitación aceptada automáticamente
+            // ACEPTAR AUTOMÁTICAMENTE AL CREADOR DEL GRUPO COMO DUEÑO //
             await workspaceMemberRepository.create(
                 user_id,
                 workspaceId,
@@ -62,8 +62,7 @@ class WorkspaceController {
         }
     }
 
-    // GET /
-    // Devuelve solo los grupos donde el usuario tiene invitación Aceptada
+    // (GET) OBTENER LOS GRUPOS A LOS QUE EL CLIENTE PERTENECE //
     async getAllByUser(req, res) {
         const user_id = req.user.id;
         const workspaces = await workspaceMemberRepository.getByUserId(user_id);

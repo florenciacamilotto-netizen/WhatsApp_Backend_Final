@@ -42,7 +42,7 @@ const workspaceMemberSchema = new mongoose.Schema(
     }
 )
 
-export const WORKSPACE_MEMBER_MODEL_NAME = 'WorkspaceMember'
+export const WORKSPACE_MEMBER_MODEL_NAME = "WorkspaceMember"
 const WorkspaceMember = mongoose.model(WORKSPACE_MEMBER_MODEL_NAME, workspaceMemberSchema);
 
 export default WorkspaceMember

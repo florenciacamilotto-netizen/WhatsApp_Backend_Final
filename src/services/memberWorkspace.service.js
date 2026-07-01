@@ -6,21 +6,23 @@ import workspaceMemberRepository from "../repositories/workspaceMember.repositor
 
 class MemberWorkspaceService {
 
-    // Invita a un usuario existente a un workspace creando una membresía Pendiente
+    // INVITAR A UN CLIENTE A FORMAR PARTE DE UN ESPACIO DE TRABAJO //
     async inviteUser(client_id, invited_email, workspace_id, role) {
-        // Verificar que el espacio de trabajo exista
+
+
+        // VERIFICAR LA EXISTENCIA DEL ESPACIO DE TRABAJO //
         const workspace = await workspaceRepository.getById(workspace_id);
         if (!workspace) {
             throw new ServerError("El espacio de trabajo no existe", 404);
         }
 
-        // Verificar que exista un usuario registrado con ese email
+        // VERIFICAR LA EXISTENCIA DE UN USUARIO REGISTRADO CON ESE MAIL //
         const invited_user = await userRepository.getByEmail(invited_email);
         if (!invited_user) {
             throw new ServerError("No existe un usuario registrado con ese email", 404);
         }
 
-        // Evitar que el dueño se invite a si mismo
+        // EVITAR QUE EL DUEÑO SE INVITE A SÍ MISMO //
         if (invited_user._id.toString() === client_id.toString()) {
             throw new ServerError("No puedes invitarte a ti mismo", 400);
         }
@@ -40,10 +42,7 @@ class MemberWorkspaceService {
             }
         }
 
-        // Crear la membresía en estado Pendiente (expira en 7 días).
-        // No se envía mail: la invitación aparece directamente en el home
-        // del usuario invitado (GET /members/me/invitations), donde la
-        // acepta o rechaza estando logueado en la app.
+        // CREAR MEMBRESÍA //
         const fecha_expiracion_invitacion = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
         await workspaceMemberRepository.create(
             invited_user._id,
@@ -54,7 +53,7 @@ class MemberWorkspaceService {
         );
     }
 
-    // Aplica la decisión (Aceptado/Rechazado) sobre una membresía pendiente
+    // ACEPTAR O RECHAZAR LA MEMBRESÍA PENDIENTE //
     async memberDesicion(membership_id, decision) {
         await workspaceMemberRepository.updateById(membership_id, {
             estatus_invitacion: decision

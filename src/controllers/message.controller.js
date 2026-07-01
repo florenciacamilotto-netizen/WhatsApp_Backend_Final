@@ -3,7 +3,7 @@ import messageRepository from "../repositories/message.repository.js";
 
 class MessageController {
 
-    // POST /api/messages/:workspace_id
+    // POST /api/messages/:workspace_id //
     // Cualquier miembro aceptado del grupo puede enviar mensajes
     async create(request, response) {
         try {

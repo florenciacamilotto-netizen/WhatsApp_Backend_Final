@@ -84,12 +84,12 @@ workspaceMemberRepository.getByWorkspaceId('6a384bca0c974d7ca746f83f')
 )
 */
 
-import express from 'express'
+import express from "express"
 import mailer_transport from "./config/mailer.config.js";
 import authRouter from "./routes/auth.router.js";
 import authMiddleware from "./middlewares/auth.middleware.js";
-import cors from 'cors'
-import errorHandlerMiddleware from './middlewares/error.middleware.js';
+import cors from "cors"
+import errorHandlerMiddleware from "./middlewares/error.middleware.js";
 import workspaceRouter from "./routes/workspace.router.js";
 import messageRouter from "./routes/message.router.js";
 
@@ -111,13 +111,13 @@ app.get(
     '/api/profile',
     authMiddleware,
     (request, response) => {
-        console.log('Nombre del cliente:',
+        console.log("Nombre del cliente:",
             request.user.nombre
         )
         return response.json({
             ok: true,
             status: 200,
-            message: "Estas autenticado"
+            message: "Estás autenticado"
         })
     }
 )
@@ -125,7 +125,6 @@ app.get(
 // REGISTRAR ERROR HANDLER MIDDLEWARE AL FINAL //
 app.use(errorHandlerMiddleware)
 
-// SOLO ESCUCHAR EN UN PUERTO CUANDO CORRE LOCAL (NO EN VERCEL) //
 if (!process.env.VERCEL) {
     app.listen(
         ENVIRONMENT.PORT,

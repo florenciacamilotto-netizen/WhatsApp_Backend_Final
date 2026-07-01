@@ -3,8 +3,7 @@ import authMiddleware from "../middlewares/auth.middleware.js";
 import workspaceController from "../controllers/workspace.controller.js";
 import workspaceMiddleware from "../middlewares/workspace.middleware.js";
 import { MEMBER_WORKSPACE_ROLES } from "../constants/memberRoles.constant.js";
-
-import memberWorkspaceController from '../controllers/memberWorkspace.controller.js';
+import memberWorkspaceController from "../controllers/memberWorkspace.controller.js";
 
 const workspaceRouter = express.Router();
 
@@ -19,21 +18,21 @@ workspaceRouter.get('/', workspaceController.getAllByUser);
 
 // ELIMINAR EL ESPACIO DE TRABAJO SI EL CLIENTE ES DUEÑO //
 workspaceRouter.delete(
-    '/:workspace_id',
+    "/:workspace_id",
     workspaceMiddleware([MEMBER_WORKSPACE_ROLES.OWNER]),
     workspaceController.deleteById
 );
 
 // EDITAR EL ESPACIO DE TRABAJO SI EL CLIENTE ES DUEÑO //
 workspaceRouter.put(
-    '/:workspace_id',
+    "/:workspace_id",
     workspaceMiddleware([MEMBER_WORKSPACE_ROLES.OWNER]),
     workspaceController.updateById
 );
 
 // Invitar usuario al grupo (solo Dueño)
 workspaceRouter.post(
-    '/:workspace_id/members',
+    "/:workspace_id/members",
     workspaceMiddleware([MEMBER_WORKSPACE_ROLES.OWNER]),
     memberWorkspaceController.inviteUser
 );
@@ -65,13 +64,6 @@ workspaceRouter.delete(
     '/:workspace_id/members/me',
     workspaceMiddleware([MEMBER_WORKSPACE_ROLES.USER]),
     memberWorkspaceController.leaveWorkspace
-);
-
-// Dueño expulsa a un miembro
-workspaceRouter.delete(
-    '/:workspace_id/members/:member_id',
-    workspaceMiddleware([MEMBER_WORKSPACE_ROLES.OWNER]),
-    memberWorkspaceController.kickMember
 );
 
 export default workspaceRouter;

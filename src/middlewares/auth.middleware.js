@@ -1,6 +1,6 @@
 import ServerError from "../helpers/serverError.helper.js";
 import ENVIRONMENT from "../config/environment.config.js";
-import jwt from 'jsonwebtoken'
+import jwt from "jsonwebtoken"
 
 function authMiddleware(request, response, next) {
     try {
@@ -8,7 +8,7 @@ function authMiddleware(request, response, next) {
 
         // RECIBIR HEADER DE AUTORIZACIÓN //
         if (!authorization_header) {
-            throw new ServerError("No hay Header de autorización", 401)
+            throw new ServerError("No hay header de autorización", 401)
         }
 
         // TRANSFORMAR EL HEADER DE AUTORIZACIÓN EN UN ARRAY CON 2 VALORES: EL BEARER Y EL TOKEN //
@@ -17,7 +17,7 @@ function authMiddleware(request, response, next) {
 
         // EXTRAER TOKEN DE AUTORIZACIÓN DE HEADER //
         if (!authorization_token) {
-            throw new ServerError("No hay Token de autorización", 401)
+            throw new ServerError("No hay token de autorización", 401)
         }
 
         // VERIFICAR EL TOKEN DE HEADER //
@@ -30,14 +30,14 @@ function authMiddleware(request, response, next) {
         request.user = user_info
 
         console.log(user_info)
-        // ACTIVA EL SIGUIENTE CONTROLADOR //
+        // ACTIVAR EL SIGUIENTE CONTROLADOR //
         return next()
     }
     catch (error) {
         // TOKEN DE HEADER EXPIRADO O INVÁLIDO//
         if (error instanceof jwt.JsonWebTokenError || error instanceof jwt.TokenExpiredError) {
             return response.status(401).json({
-                message: 'Token expirado o inválido',
+                message: "Token expirado o inválido",
                 ok: false,
                 status: 401
             })
@@ -52,7 +52,7 @@ function authMiddleware(request, response, next) {
             )
         }
         else {
-            console.error('Error crítico:', error);
+            console.error("Error crítico:", error);
             return response.status(500).json({
                 message: "Error interno del servidor",
                 ok: false,

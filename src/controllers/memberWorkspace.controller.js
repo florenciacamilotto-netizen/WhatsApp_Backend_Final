@@ -6,8 +6,9 @@ import memberWorkspaceService from "../services/memberWorkspace.service.js";
 
 class MemberWorkspaceController {
 
-    // POST /:workspace_id/members
-    // Solo el Dueño puede invitar usuarios al grupo
+    // (POST) /:workspace_id/members //
+
+    // (DUEÑO) INVITAR USUARIOS AL GRUPO //
     async inviteUser(request, response) {
         const { workspace_id } = request.params;
         const { invited_email, role } = request.body;
@@ -35,8 +36,9 @@ class MemberWorkspaceController {
         });
     }
 
-    // GET /:workspace_id/members
-    // Lista los miembros que aceptaron formar parte del grupo (requiere ser miembro aceptado)
+    // (GET) /:workspace_id/members //
+
+    // LISTAR A LOS MIEMBROS QUE ACEPTARON FORMAR PARTE DEL GRUPO //
     async getMembers(request, response) {
         const { workspace_id } = request.params;
 
@@ -51,9 +53,9 @@ class MemberWorkspaceController {
         });
     }
 
-    // GET /members/me/invitations
-    // Devuelve las invitaciones pendientes del usuario logueado, para que
-    // pueda verlas en el home y aceptarlas o rechazarlas desde la app.
+    // (GET) /members/me/invitations //
+
+    // OBTENER LAS INVITACIONES PENDIENTES DEL USUARIO LOGUEADO //
     async getMyPendingInvitations(request, response) {
         const { id: user_id } = request.user;
 
@@ -68,8 +70,9 @@ class MemberWorkspaceController {
         });
     }
 
-    // PUT /:workspace_id/members/me/decision
-    // El invitado acepta o rechaza la invitación desde la app (requiere sesión)
+    // (PUT) /:workspace_id/members/me/decision //
+
+    // ACTUALIZAR INVITACIÓN ACEPTADA O RECHAZADA //
     async processInvitation(request, response) {
         const { decision } = request.params;
         const { id: user_id } = request.user;
@@ -82,7 +85,6 @@ class MemberWorkspaceController {
             throw new ServerError("Decisión no válida", 400);
         }
 
-        // Buscamos la membresía pendiente del usuario en este workspace
         const membership = await workspaceMemberRepository.getByUserAndWorkspaceId(user_id, workspace_id);
 
         if (!membership) {
@@ -98,12 +100,13 @@ class MemberWorkspaceController {
         response.json({
             ok: true,
             status: 200,
-            message: `Decisión de ${decision} tomada con éxito!`
+            message: `¡Decisión de ${decision} tomada con éxito!`
         });
     }
 
-    // DELETE /:workspace_id/members/me
-    // Cualquier miembro aceptado puede abandonar el grupo
+    // (DELETE) /:workspace_id/members/me //
+
+    // (MIEMBROS) ABANDONAR EL GRUPO DEL QUE FUERON ACEPTADOS //
     async leaveWorkspace(request, response) {
         const membership = request.membership;
 
@@ -116,38 +119,6 @@ class MemberWorkspaceController {
         return response.status(200).json({
             ok: true,
             message: "Has abandonado el grupo exitosamente"
-        });
-    }
-
-    // DELETE /:workspace_id/members/:member_id
-    // El Dueño expulsa a un Usuario del grupo
-    async kickMember(request, response) {
-        const { member_id } = request.params;
-        const requester_membership = request.membership;
-
-        const memberToKick = await workspaceMemberRepository.getById(member_id);
-
-        if (!memberToKick) {
-            throw new ServerError("El miembro indicado no existe en este grupo", 404);
-        }
-
-        if (memberToKick.fk_workspace_id.toString() !== request.workspace._id.toString()) {
-            throw new ServerError("El miembro no pertenece a este grupo", 400);
-        }
-
-        if (memberToKick._id.toString() === requester_membership._id.toString()) {
-            throw new ServerError("El Dueño no puede expulsarse a sí mismo", 400);
-        }
-
-        if (memberToKick.rol === MEMBER_WORKSPACE_ROLES.OWNER) {
-            throw new ServerError("No se puede expulsar al Dueño del grupo", 400);
-        }
-
-        await workspaceMemberRepository.deleteById(member_id);
-
-        return response.status(200).json({
-            ok: true,
-            message: "Miembro eliminado del grupo exitosamente"
         });
     }
 }

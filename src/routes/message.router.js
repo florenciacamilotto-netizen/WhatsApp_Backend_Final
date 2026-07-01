@@ -8,23 +8,23 @@ const messageRouter = express.Router();
 // CONFIGURAR EL AUTHMIDDLEWARE A NIVEL DE RUTA //
 messageRouter.use(authMiddleware);
 
-// ENVIAR UN MENSAJE AL GRUPO (cualquier miembro aceptado) //
+// ENVIAR UN MENSAJE AL GRUPO //
 messageRouter.post(
-    '/:workspace_id',
+    "/:workspace_id",
     workspaceMiddleware([]),
     messageController.create
 );
 
 // OBTENER EL HISTORIAL COMPLETO DE MENSAJES DEL GRUPO //
 messageRouter.get(
-    '/:workspace_id',
+    "/:workspace_id",
     workspaceMiddleware([]),
     messageController.getByWorkspaceId
 );
 
-// OBTENER SOLO LOS MENSAJES NUEVOS (POLLING) //
+// (POLLING) OBTENER SOLO LOS MENSAJES NUEVOS //
 messageRouter.get(
-    '/:workspace_id/new',
+    "/:workspace_id/new",
     workspaceMiddleware([]),
     messageController.getNew
 );

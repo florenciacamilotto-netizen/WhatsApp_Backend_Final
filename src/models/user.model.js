@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose"
 
 const userSchema = new mongoose.Schema(
     {
@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
     }
 )
 
-export const USER_COLLECTION_NAME = 'User'
+export const USER_COLLECTION_NAME = "User"
 const User = mongoose.model(USER_COLLECTION_NAME, userSchema)
 
 export default User

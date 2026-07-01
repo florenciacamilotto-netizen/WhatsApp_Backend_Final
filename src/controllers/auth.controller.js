@@ -51,8 +51,8 @@ class AuthController {
                         from: ENVIRONMENT.GMAIL_USERNAME,
                         subject: "Verifica tu mail",
                         html: `
-                        <h1> Bienvenido a WhatsApp </h1>
-                        <a href='${verificationUrl}'>Click aquí</a> para verificar tu cuenta
+                             <h1> Bienvenido a WhatsApp </h1>
+                             <a href='${verificationUrl}'>Click aquí</a> para verificar tu cuenta
                         `
                     }
                 )
@@ -60,8 +60,6 @@ class AuthController {
             } catch (mailError) {
                 console.error("Error al enviar el email de verificación:", mailError.message);
             }
-            // Siempre imprimir el enlace de verificación en la consola local por si falla el envío de correo.
-            console.log("Enlace de verificación del usuario:", verificationUrl);
 
             return response.status(201).json({
                 message: "Usuario registrado con éxito",
@@ -191,7 +189,7 @@ class AuthController {
             return response.status(200).json({
                 ok: true,
                 status: 200,
-                message: 'Usuario autentificado exitosamente',
+                message: "Usuario autentificado exitosamente",
                 data: {
                     access_token
                 }
@@ -216,101 +214,6 @@ class AuthController {
                 });
             }
         }
-    }
-
-
-
-
-    /* --- 4. SOLICITUD RESTABLECER CONTRASEÑA --- */
-    async resetPasswordRequest(request, response) {
-
-        const { email } = request.body;
-
-        if (!email) {
-            throw new ServerError("El email es obligatorio", 400);
-        }
-
-        const user = await userRepository.getByEmail(email);
-
-        //Esto es una decision de negocio, no quiere decir que siempre deba ser asi, un 404 not found podria estar bien tambien o
-        if (!user) {
-            return response.status(200).json({
-                ok: true,
-                status: 200,
-                message: "En caso de que tengas una cuenta asociada a este correo te enviaremos instrucciones para restablecer tu contraseña"
-            });
-        }
-
-        const secret_key = ENVIRONMENT.JWT_SECRET + user.password;
-
-        const token = jwt.sign(
-            { email: user.email, id: user._id },
-            secret_key,
-            { expiresIn: '15m' } //El token expiran en 15m
-        );
-
-        const reset_link = `${ENVIRONMENT.URL_FRONTEND}/reset-password?token=${token}`;
-
-        await mailer_transport.sendMail({
-            from: 'Tu App <no-reply@tuapp.com>',
-            to: user.email,
-            subject: 'Restablece tu contraseña',
-            html: `
-                    <h1>Restablecimiento de Contraseña</h1>
-                    <p>Has solicitado restablecer tu contraseña. Haz clic en el enlace de abajo para continuar:</p>
-                    <a href="${reset_link}">Restablecer mi contraseña</a>
-                    <p>Este enlace expirará en 15 minutos. Si tú no solicitaste esto, puedes ignorar este correo sin problemas.</p>
-                `
-        });
-
-        //RETURN EXITO REAL
-        return response.status(200).json({
-            ok: true,
-            status: 200,
-            message: "En caso de que tengas una cuenta asociada a este correo te enviaremos instrucciones para restablecer tu contraseña"
-        });
-
-    }
-
-    async resetPasswordConfirm(request, response) {
-
-        const auth_header = request.headers.authorization
-
-        if (!auth_header) {
-            throw new ServerError('Falta header de autentificacion', 401)
-        }
-
-        const reset_token = auth_header.split(' ')[1]
-
-        if (!reset_token) {
-            throw new ServerError('Falta el token de autorizacion', 401)
-        }
-
-        const { email } = jwt.decode(reset_token)
-        const user = await userRepository.getByEmail(email)
-        if (!user) {
-            throw new ServerError("Usuario no encontrado", 404);
-        }
-
-
-        const secret_key = ENVIRONMENT.JWT_SECRET + user.password;
-        const decoded = jwt.verify(reset_token, secret_key);
-
-        const { newPassword } = request.body;
-
-        if (!newPassword || newPassword.length < 6) {
-            throw new ServerError("Contraseña invalida", 400);
-        }
-
-        const new_password_hashed = await bcrypt.hash(newPassword, 10);
-        await userRepository.updateById(user._id, { password: new_password_hashed });
-
-        return response.status(200).json({
-            ok: true,
-            status: 200,
-            message: "Contraseña restablecida exitosamente"
-        });
-
     }
 }
 

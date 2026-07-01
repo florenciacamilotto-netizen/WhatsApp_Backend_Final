@@ -1,4 +1,4 @@
-import dotenv from 'dotenv'
+import dotenv from "dotenv"
 
 dotenv.config()
 
@@ -10,11 +10,11 @@ const ENVIRONMENT = {
     GMAIL_USERNAME: process.env.GMAIL_USERNAME,
     GMAIL_PASSWORD: process.env.GMAIL_PASSWORD,
     URL_BACKEND: process.env.URL_BACKEND,
-    URL_FRONTEND: process.env.URL_FRONTEND || 'http://localhost:5173',
+    URL_FRONTEND: process.env.URL_FRONTEND,
     JWT_SECRET: process.env.JWT_SECRET
 }
-if(ENVIRONMENT.PORT === undefined && !process.env.VERCEL){
-    throw new Error('PORT is not defined')
+if (ENVIRONMENT.PORT === undefined && !process.env.VERCEL) {
+    throw new Error("PORT is not defined")
 }
 
 export default ENVIRONMENT
