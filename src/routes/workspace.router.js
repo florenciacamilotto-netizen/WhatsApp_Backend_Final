@@ -24,10 +24,10 @@ workspaceRouter.delete(
     workspaceController.deleteById
 );
 
-// EDITAR EL ESPACIO DE TRABAJO SI EL CLIENTE ES DUEÑO O ADMINISTRADOR //
+// EDITAR EL ESPACIO DE TRABAJO SI EL CLIENTE ES DUEÑO //
 workspaceRouter.put(
     '/:workspace_id',
-    workspaceMiddleware([MEMBER_WORKSPACE_ROLES.ADMIN, MEMBER_WORKSPACE_ROLES.OWNER]),
+    workspaceMiddleware([MEMBER_WORKSPACE_ROLES.OWNER]),
     workspaceController.updateById
 );
 
@@ -53,16 +53,6 @@ workspaceRouter.get(
     memberWorkspaceController.getMembers
 );
 
-// Admin se degrada a sí mismo a Usuario
-// IMPORTANTE: esta ruta literal va ANTES que '/members/me/:decision',
-// porque ':decision' matchea cualquier valor (incluido "downgrade") y,
-// si quedara primero, esta ruta nunca se alcanzaría.
-workspaceRouter.put(
-    '/:workspace_id/members/me/downgrade',
-    workspaceMiddleware([MEMBER_WORKSPACE_ROLES.ADMIN]),
-    memberWorkspaceController.downgradeSelf
-);
-
 // El invitado acepta o rechaza la invitación desde la app (requiere sesión)
 // El middleware NO se usa aquí porque el invitado aún tiene estatus Pendiente
 workspaceRouter.put(
@@ -73,7 +63,7 @@ workspaceRouter.put(
 // Miembro abandona el grupo voluntariamente
 workspaceRouter.delete(
     '/:workspace_id/members/me',
-    workspaceMiddleware([MEMBER_WORKSPACE_ROLES.ADMIN, MEMBER_WORKSPACE_ROLES.USER]),
+    workspaceMiddleware([MEMBER_WORKSPACE_ROLES.USER]),
     memberWorkspaceController.leaveWorkspace
 );
 

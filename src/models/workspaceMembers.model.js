@@ -22,7 +22,7 @@ const workspaceMemberSchema = new mongoose.Schema(
             required: true
         },
         rol: {
-            enum: [MEMBER_WORKSPACE_ROLES.ADMIN, MEMBER_WORKSPACE_ROLES.OWNER, MEMBER_WORKSPACE_ROLES.USER],
+            enum: [MEMBER_WORKSPACE_ROLES.OWNER, MEMBER_WORKSPACE_ROLES.USER],
             type: String,
             default: MEMBER_WORKSPACE_ROLES.USER
         },

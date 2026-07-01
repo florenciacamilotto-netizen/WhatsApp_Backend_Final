@@ -1,7 +1,6 @@
 import ENVIRONMENT from "./config/environment.config.js";
 import connectMongoDB from "./config/mongodb.config.js";
 import { MEMBER_WORKSPACE_ROLES } from "./constants/memberRoles.constant.js";
-import User from "./models/user.model.js";
 import userRepository from "./repositories/user.repository.js";
 import workspaceRepository from "./repositories/workspace.repository.js";
 import workspaceMemberRepository from "./repositories/workspaceMember.repository.js"
@@ -87,7 +86,6 @@ workspaceMemberRepository.getByWorkspaceId('6a384bca0c974d7ca746f83f')
 
 import express from 'express'
 import mailer_transport from "./config/mailer.config.js";
-import authController from "./controllers/auth.controller.js";
 import authRouter from "./routes/auth.router.js";
 import authMiddleware from "./middlewares/auth.middleware.js";
 import cors from 'cors'

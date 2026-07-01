@@ -17,7 +17,7 @@ class MemberWorkspaceController {
             throw new ServerError("Faltan datos obligatorios (email y rol)", 400);
         }
 
-        const rolesPermitidos = [MEMBER_WORKSPACE_ROLES.USER, MEMBER_WORKSPACE_ROLES.ADMIN];
+        const rolesPermitidos = [MEMBER_WORKSPACE_ROLES.USER];
         if (!rolesPermitidos.includes(role)) {
             throw new ServerError("El rol indicado no es válido para la invitación", 400);
         }
@@ -102,24 +102,8 @@ class MemberWorkspaceController {
         });
     }
 
-    // PUT /:workspace_id/members/me/downgrade
-    // El Admin renuncia a su rol y pasa a ser Usuario
-    async downgradeSelf(request, response) {
-        const membership = request.membership;
-
-        await workspaceMemberRepository.updateById(
-            membership._id,
-            { rol: MEMBER_WORKSPACE_ROLES.USER }
-        );
-
-        return response.status(200).json({
-            ok: true,
-            message: "Ahora eres Usuario del grupo"
-        });
-    }
-
     // DELETE /:workspace_id/members/me
-    // Cualquier miembro aceptado (Admin o Usuario) puede abandonar el grupo
+    // Cualquier miembro aceptado puede abandonar el grupo
     async leaveWorkspace(request, response) {
         const membership = request.membership;
 
@@ -136,7 +120,7 @@ class MemberWorkspaceController {
     }
 
     // DELETE /:workspace_id/members/:member_id
-    // El Dueño expulsa a un Admin o Usuario del grupo
+    // El Dueño expulsa a un Usuario del grupo
     async kickMember(request, response) {
         const { member_id } = request.params;
         const requester_membership = request.membership;
