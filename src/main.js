@@ -93,6 +93,7 @@ import authMiddleware from "./middlewares/auth.middleware.js";
 import cors from 'cors'
 import errorHandlerMiddleware from './middlewares/error.middleware.js';
 import workspaceRouter from "./routes/workspace.router.js";
+import messageRouter from "./routes/message.router.js";
 
 const app = express()
 
@@ -106,6 +107,7 @@ app.use(cors())
 
 app.use('/api/auth', authRouter);
 app.use('/api/workspace', workspaceRouter)
+app.use('/api/messages', messageRouter)
 
 app.get(
     '/api/profile',
